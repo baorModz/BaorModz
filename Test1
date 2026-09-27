@@ -1,0 +1,207 @@
+-- BaorModz-V1 Menu Cheat (Gojo Theme Edition) - Delta Executor
+local CoreGui = game:GetService("CoreGui")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Lighting = game:GetService("Lighting")
+local SoundService = game:GetService("SoundService")
+local Terrain = workspace:FindFirstChildOfClass("Terrain")
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+
+-- Xóa menu cũ nếu tồn tại
+if CoreGui:FindFirstChild("BaorModzV1") then
+    CoreGui.BaorModzV1:Destroy()
+end
+
+-- Tạo ScreenGui chính
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "BaorModzV1"
+ScreenGui.Parent = CoreGui
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+-- HỆ THỐNG BYPASS & ANTI-BAN NGẦM
+local function InitBypassAndAntiBan()
+    pcall(function()
+        if setscriptable then
+            setscriptable(LocalPlayer, "SimulationRadius", true)
+        end
+        LocalPlayer.SimulationRadius = math.huge
+        
+        for _, v in pairs(getconnections(Players.LocalPlayer.Idled)) do
+            v:Disable()
+        end
+    end)
+    print("[BaorModz-V1]: Bypass & Anti-Ban Activated Successfully!")
+end
+
+InitBypassAndAntiBan()
+
+-- Hàm hỗ trợ kéo thả mượt mà
+local function MakeDraggable(guiObject)
+    local dragging = false
+    local dragInput, dragStart, startPos
+    
+    guiObject.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = guiObject.Position
+            
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+    
+    guiObject.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - dragStart
+            guiObject.Position = UDim2.new(
+                startPos.X.Scale, 
+                startPos.X.Offset + delta.X, 
+                startPos.Y.Scale, 
+                startPos.Y.Offset + delta.Y
+            )
+        end
+    end)
+end
+
+-- ==================== VÒNG TRÒN AIM FOV (TÂM MÀN HÌNH) ====================
+local FOVRing = Drawing.new("Circle")
+FOVRing.Visible = false
+FOVRing.Transparency = 0.7
+FOVRing.Color = Color3.fromRGB(0, 162, 255)
+FOVRing.Thickness = 1.5
+FOVRing.NumSides = 64
+FOVRing.Radius = 120 -- Bán kính FOV mặc định, có thể tinh chỉnh bên dưới
+FOVRing.Filled = false
+
+-- ==================== HỆ THỐNG NHẠC NỀN ====================
+local BackgroundMusic = Instance.new("Sound")
+BackgroundMusic.Name = "BaorModzMusic"
+BackgroundMusic.Parent = SoundService
+BackgroundMusic.SoundId = "rbxassetid://119165216580381" 
+BackgroundMusic.Volume = 0.8
+BackgroundMusic.Looped = true
+
+pcall(function()
+    BackgroundMusic:Play()
+end)
+
+-- ==================== HỆ THỐNG NHẬP KEY (KEY SYSTEM) ====================
+local KeySystemGui = Instance.new("Frame")
+KeySystemGui.Name = "KeySystemGui"
+KeySystemGui.Parent = ScreenGui
+KeySystemGui.BackgroundColor3 = Color3.fromRGB(10, 10, 15)
+KeySystemGui.Position = UDim2.new(0.5, -180, 0.5, -100)
+KeySystemGui.Size = UDim2.new(0, 360, 0, 190)
+KeySystemGui.Active = true
+
+local UIStrokeKey = Instance.new("UIStroke")
+UIStrokeKey.Color = Color3.fromRGB(0, 162, 255)
+UIStrokeKey.Thickness = 2.5
+UIStrokeKey.Parent = KeySystemGui
+
+local UICornerKeySys = Instance.new("UICorner")
+UICornerKeySys.CornerRadius = UDim.new(0, 8)
+UICornerKeySys.Parent = KeySystemGui
+
+MakeDraggable(KeySystemGui)
+
+local KeyTitle = Instance.new("TextLabel")
+KeyTitle.Parent = KeySystemGui
+KeyTitle.BackgroundColor3 = Color3.fromRGB(0, 162, 255)
+KeyTitle.Size = UDim2.new(1, 0, 0, 40)
+KeyTitle.Font = Enum.Font.GothamBold
+KeyTitle.Text = "  BAORMODZ-V1 | KEY SYSTEM"
+KeyTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+KeyTitle.TextSize = 13
+KeyTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+local UICornerKeyTitle = Instance.new("UICorner")
+UICornerKeyTitle.CornerRadius = UDim.new(0, 8)
+UICornerKeyTitle.Parent = KeyTitle
+
+                        local headColor = head:FindFirstChild("BaorModzHeadColor")
+                        if not headColor then
+                            headColor = Instance.new("SelectionBox")
+                            headColor.Name = "BaorModzHeadColor"
+                            headColor.Adornee = head
+                            headColor.Color3 = Color3.fromRGB(255, 0, 0)
+                            headColor.LineThickness = 0.05
+                            headColor.Parent = head
+                        end
+                    else
+                        local headColor = head:FindFirstChild("BaorModzHeadColor")
+                        if headColor then headColor:Destroy() end
+                    end
+
+                    local charHighlight = char:FindFirstChild("BaorModzCharHighlight")
+                    if ESPCharacterWallThroughEnabled then
+                        if not charHighlight then
+                            charHighlight = Instance.new("Highlight")
+                            charHighlight.Name = "BaorModzCharHighlight"
+                            charHighlight.Adornee = char
+                            charHighlight.FillColor = Color3.fromRGB(0, 162, 255)
+                            charHighlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+                            charHighlight.FillTransparency = 0.85
+                            charHighlight.OutlineTransparency = 0
+                            charHighlight.Parent = char
+                        end
+                    else
+                        if charHighlight then charHighlight:Destroy() end
+                    end
+                end
+            end
+        end
+
+        -- 3. Xử lý ESP Weapon
+        local allPlayers = Players:GetPlayers()
+        table.insert(allPlayers, LocalPlayer)
+
+        for _, player in ipairs(allPlayers) do
+            if player.Character then
+                for _, tool in ipairs(player.Character:GetChildren()) do
+                    if tool:IsA("Tool") then
+                        local weaponHighlight = tool:FindFirstChild("BaorModzWeaponHighlight")
+                        if ESPWeaponEnabled then
+                            if not weaponHighlight then
+                                weaponHighlight = Instance.new("Highlight")
+                                weaponHighlight.Name = "BaorModzWeaponHighlight"
+                                weaponHighlight.Adornee = tool
+                                weaponHighlight.FillColor = Color3.fromRGB(120, 255, 120)
+                                weaponHighlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+                                weaponHighlight.FillTransparency = 0.4
+                                weaponHighlight.OutlineTransparency = 0
+                                weaponHighlight.Parent = tool
+                            end
+                        else
+                            if weaponHighlight then weaponHighlight:Destroy() end
+                        end
+                    end
+                end
+            end
+        end
+    end)
+    print("BaorModz-V1 Menu Cheat Loaded Successfully!")
+end
+
+-- Xử lý sự kiện bấm nút xác nhận Key
+SubmitKeyBtn.MouseButton1Click:Connect(function()
+    if KeyBox.Text == "Baor Modz Pro V1" then
+        KeySystemGui:Destroy()
+        BuildMainUI()
+    else
+        KeyBox.Text = ""
+        KeyBox.PlaceholderText = "Sai Key! Xem Tiktok @taisaovayem65"
+    end
+end)
